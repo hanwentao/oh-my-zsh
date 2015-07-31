@@ -16,6 +16,8 @@ if [[ -n "$USE_SOLARIZED" ]]; then
 
   local current_dir="%{$fg[blue]%}%~ "
   local ret_status="%(?:%{$fg[green]%}:%{$fg[red]%}%? )%# "
+
+  export LSCOLORS="exfxcxdxbxegedabagacad"
 else
   ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[cyan]%}git:(%{$fg_bold[red]%}"
   ZSH_THEME_GIT_PROMPT_SUFFIX=" "
