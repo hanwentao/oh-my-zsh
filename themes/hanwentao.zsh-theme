@@ -1,21 +1,25 @@
 function ssh_username_hostname() {
   if [[ -n "$SSH_CONNECTION" ]]; then
     if [[ -n "$USE_SOLARIZED" ]]; then
-      echo "%{$fg[green]%}%n@%m "
+      echo "%{$fg[green]%}%n@%m%{$reset_color%} "
     else
-      echo "%{$fg_bold[green]%}%n@%m "
+      echo "%{$fg_bold[green]%}%n@%m%{$reset_color%} "
     fi
   fi
 }
 
-if [[ -n "$USE_SOLARIZED" ]]; then
-  ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[cyan]%}git:(%{$fg[red]%}"
-  ZSH_THEME_GIT_PROMPT_SUFFIX=" "
-  ZSH_THEME_GIT_PROMPT_DIRTY=" %{$fg[yellow]%}X%{$fg[cyan]%})"
-  ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[cyan]%})"
+function virtualenv_info {
+  [ $VIRTUAL_ENV ] && echo "%{$fg[cyan]%}{"`basename $VIRTUAL_ENV`"}%{$reset_color%} "
+}
 
-  local current_dir="%{$fg[blue]%}%~ "
-  local ret_status="%(?:%{$fg[green]%}:%{$fg[red]%}%? )%# "
+if [[ -n "$USE_SOLARIZED" ]]; then
+  ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[yellow]%}("
+  ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
+  ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[red]%}*%{$fg[yellow]%})"
+  ZSH_THEME_GIT_PROMPT_CLEAN=")"
+
+  local current_dir="%{$fg[blue]%}%~%{$reset_color%} "
+  local ret_status="%(?:%{$fg[green]%}:%{$fg[red]%}%? )%#%{$reset_color%} "
 
   case "$(uname)" in
     Darwin)
@@ -33,8 +37,8 @@ else
   ZSH_THEME_GIT_PROMPT_DIRTY=" %{$fg_bold[yellow]%}X%{$fg_bold[cyan]%})"
   ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg_bold[cyan]%})"
 
-  local current_dir="%{$fg_bold[blue]%}%~ "
-  local ret_status="%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%? )%# "
+  local current_dir="%{$fg_bold[blue]%}%~%{$reset_color%} "
+  local ret_status="%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%? )%#%{$reset_color%} "
 fi
 
-PROMPT='%s$(ssh_username_hostname)${current_dir}$(git_prompt_info)${ret_status}%{$reset_color%}'
+PROMPT='%s$(ssh_username_hostname)${current_dir}$(virtualenv_info)$(git_prompt_info)${ret_status}%{$reset_color%}'
