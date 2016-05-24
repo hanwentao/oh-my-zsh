@@ -46,6 +46,16 @@ EOF
       end tell
 EOF
 
+  elif [[ "$the_app" == 'iTerm2' ]]; then
+      osascript <<EOF
+        tell application "iTerm"
+          tell current window
+            create tab with default profile
+            tell current session to write text "${command}"
+          end tell
+        end tell
+EOF
+
   else
     echo "tab: unsupported terminal app: $the_app"
     false
@@ -73,6 +83,19 @@ function vsplit_tab() {
       end tell
 EOF
 
+  elif [[ "$the_app" == 'iTerm2' ]]; then
+      osascript <<EOF
+        tell application "iTerm"
+          tell current session of first window
+            set newSession to (split vertically with same profile)
+            tell newSession
+              write text "${command}"
+              select
+            end tell
+          end tell
+        end tell
+EOF
+
   else
     echo "$0: unsupported terminal app: $the_app" >&2
     false
@@ -98,6 +121,19 @@ function split_tab() {
         end tell
         keystroke "${command} \n"
       end tell
+EOF
+
+  elif [[ "$the_app" == 'iTerm2' ]]; then
+      osascript <<EOF
+        tell application "iTerm"
+          tell current session of first window
+            set newSession to (split horizontally with same profile)
+            tell newSession
+              write text "${command}"
+              select
+            end tell
+          end tell
+        end tell
 EOF
 
   else
@@ -167,6 +203,17 @@ function itunes() {
 		vol)
 			opt="set sound volume to $1" #$1 Due to the shift
 			;;
+		playing|status)
+			local state=`osascript -e 'tell application "iTunes" to player state as string'`
+			if [[ "$state" = "playing" ]]; then
+				currenttrack=`osascript -e 'tell application "iTunes" to name of current track as string'`
+				currentartist=`osascript -e 'tell application "iTunes" to artist of current track as string'`
+				echo -E "Listening to $fg[yellow]$currenttrack$reset_color by $fg[yellow]$currentartist$reset_color";
+			else
+				echo "iTunes is" $state;
+			fi
+			return 0
+			;;
 		shuf|shuff|shuffle)
 			# The shuffle property of current playlist can't be changed in iTunes 12,
 			# so this workaround uses AppleScript to simulate user input instead.
@@ -205,6 +252,7 @@ EOF
 			echo "\tnext|previous\tplay next or previous track"
 			echo "\tshuf|shuffle [on|off|toggle]\tSet shuffled playback. Default: toggle. Note: toggle doesn't support the MiniPlayer."
 			echo "\tvol\tSet the volume, takes an argument from 0 to 100"
+			echo "\tplaying|status\tShow what song is currently playing in iTunes."
 			echo "\thelp\tshow this message and exit"
 			return 0
 			;;
